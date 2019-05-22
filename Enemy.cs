@@ -1,4 +1,5 @@
-﻿using System.Collections;
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,10 +7,14 @@ public class Enemy : MonoBehaviour {
     [Header ("SErialized Fields")]
     [SerializeField] float health = 100;
     [SerializeField] float countingTheShots;
-    [SerializeField] float minTimeAidaShots = 0.2f;
-    [SerializeField] float maxTimeAidaShots = 3f;
+    [SerializeField] float minTimeAidaShots = 0.2f;//間 means between
+    [SerializeField] float maxTimeAidaShots = 3f;//間 means between
     [SerializeField] GameObject lazerShot;
     [SerializeField] float projectileSpeed = 10f;
+    [SerializeField] GameObject explosionParticle;
+    [SerializeField] AudioClip deathOfEnemySound;//sound of enemy's death 
+    [SerializeField] AudioClip shootingSFX;
+
 
 	// Use this for initialization
 	void Start () {
@@ -33,12 +38,15 @@ public class Enemy : MonoBehaviour {
 
     private void Fire()
     {
-        GameObject laser = Instantiate(//creating a projectile
+        GameObject laser = Instantiate(//creating a projectile(lazer)
             lazerShot,
             transform.position,
             Quaternion.identity
             ) as GameObject;
-        laser.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -projectileSpeed);//shooting downwards
+        laser.GetComponent<Rigidbody2D>().velocity = 
+            new Vector2(0, -projectileSpeed);//shooting downwards
+        AudioSource.PlayClipAtPoint(shootingSFX, Camera.main.transform.position);//play audio
+
     }
 
     private void OnTriggerEnter2D(Collider2D other)//what happens on collision
@@ -46,6 +54,9 @@ public class Enemy : MonoBehaviour {
         DamageDealer damageDealer = other.gameObject.GetComponent<DamageDealer>();//we get a damage dealer
         if (!damageDealer) { return; }
         CountHit(damageDealer);
+        
+
+
     }
 
     private void CountHit(DamageDealer damageDealer)
@@ -54,7 +65,23 @@ public class Enemy : MonoBehaviour {
         damageDealer.Hit();
         if (health <= 0)
         {
-            Destroy(gameObject);
+            BePurged();//death method
+            
         }
+    }
+
+    private void SoundOfDestruction()
+    {
+        AudioSource.PlayClipAtPoint(deathOfEnemySound, Camera.main.transform.position);
+    }
+
+    private void BePurged()
+    {
+        Destroy(gameObject);
+        GameObject explosion = Instantiate(explosionParticle, transform.position, transform.rotation)
+        as GameObject;//instantiate the explosion
+        SoundOfDestruction();//play death sound
+        Destroy(explosion, 1f);
+        
     }
 }

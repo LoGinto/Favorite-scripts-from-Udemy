@@ -1,1 +1,1 @@
-Favorite Scripts that I learned to write myself
+usefull scripts that I wrote for personal project 

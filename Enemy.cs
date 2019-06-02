@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+//simple 2d top down enemy 
 public class Enemy : MonoBehaviour {
     [Header ("SErialized Fields")]
     [SerializeField] float health = 100;

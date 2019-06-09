@@ -1,34 +1,39 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpawnerD : MonoBehaviour
-{
-    [SerializeField] GameObject def;//defender game object
+public class DefenderSpawner : MonoBehaviour {
+
+    Defender defender;
+
     private void OnMouseDown()
     {
-        //Debug.Log("Clicked");
-        DSpawn(GetClicked());//spawn
+        SpawnDefender(GetSquareClicked());//on mouse click spawn on clicked square
     }
-    private Vector2 GetClicked()
-    {
-        Vector2 posclick = new Vector2(Input.mousePosition.x, Input.mousePosition.y);//getting click coordinates
-        Vector2 rawgrid = Camera.main.ScreenToWorldPoint(posclick);//convert it to understandable x,y
-        Vector2 gridPos = AttachToGrid(rawgrid);//calling  coordinate conversion method 
-        return gridPos;
-    }
-    private Vector2 AttachToGrid(Vector2 nogridpos)
-    {
-        float newX = Mathf.RoundToInt(nogridpos.x);//converting the float position to integer
-        float newY = Mathf.RoundToInt(nogridpos.y);//convert the float position to integer
-        return new Vector2(newX, newY);
 
-    }
-    private void DSpawn(Vector2 ConvertedParameter)
+    public void SetSelectedDefender(Defender selectedDefender)
     {
-        //coordinates = GetClicked();
-        GameObject defender = Instantiate(def,ConvertedParameter,transform.rotation
-            ) as GameObject;//actual spawning 
-
+        defender = selectedDefender;
     }
+    private Vector2 GetSquareClicked()
+    {
+        Vector2 clickPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);//input of mouse click position
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(clickPos);
+        Vector2 gridPos = SnapToGrid(worldPos);//converting to integer
+        return gridPos;//returning new position
+    }
+
+    private Vector2 SnapToGrid(Vector2 rawWorldPos)
+    {
+        float newX = Mathf.RoundToInt(rawWorldPos.x);//convert x to int
+        float newY = Mathf.RoundToInt(rawWorldPos.y);//convert y to int
+        return new Vector2(newX, newY);//return new vector 
+    }
+
+    private void SpawnDefender(Vector2 roundedPos)
+    {
+        Defender newDefender = Instantiate(defender, roundedPos, Quaternion.identity) as Defender;//actual spawning 
+        Debug.Log(roundedPos);
+    }
+
 }

@@ -12,32 +12,33 @@ namespace RPG.Control
     {
         [SerializeField] float chaseDistance = 5f;
         [SerializeField] float suspicionTime = 3f;
-        [SerializeField] PatrolPath patrolPath;
+        [SerializeField] PatrolPath patrolPath;//patrol path where enemy will go to
         [SerializeField] float waypointTolerance = 1f;
         [SerializeField] float waypointDwellTime = 3f;
-
+        [Range(0,1)]
+        [SerializeField] float patrolSpeedFraction = 0.2f;
         Fighter fighter;
         Health health;
         Mover mover;
         GameObject player;
 
         Vector3 guardPosition;
-        float timeSinceLastSawPlayer = Mathf.Infinity;
-        float timeSinceArrivedAtWaypoint = Mathf.Infinity;
+        float timeSinceLastSawPlayer = Mathf.Infinity;//timer 1
+        float timeSinceArrivedAtWaypoint = Mathf.Infinity;//timer 2
         int currentWaypointIndex = 0;
 
         private void Start() {
             fighter = GetComponent<Fighter>();
             health = GetComponent<Health>();
             mover = GetComponent<Mover>();
-            player = GameObject.FindWithTag("Player");
+            player = GameObject.FindWithTag("Player");//initialization of components
 
             guardPosition = transform.position;
         }
 
-        private void Update()
+        private void Update()//once per frame operations
         {
-            if (health.IsDead()) return;
+            if (health.IsDead()) return;//do nothing if you died
 
             if (InAttackRangeOfPlayer() && fighter.CanAttack(player))
             {
@@ -77,19 +78,19 @@ namespace RPG.Control
 
             if (timeSinceArrivedAtWaypoint > waypointDwellTime)
             {
-                mover.StartMoveAction(nextPosition);
+                mover.StartMoveAction(nextPosition,patrolSpeedFraction);//actual moving
             }
         }
 
         private bool AtWaypoint()
         {
             float distanceToWaypoint = Vector3.Distance(transform.position, GetCurrentWaypoint());
-            return distanceToWaypoint < waypointTolerance;
+            return distanceToWaypoint < waypointTolerance;//returns whther you enemy is far away from waypoint
         }
 
         private void CycleWaypoint()
         {
-            currentWaypointIndex = patrolPath.GetNextIndex(currentWaypointIndex);
+            currentWaypointIndex = patrolPath.GetNextIndex(currentWaypointIndex);//get next spot from looping the patrol points
         }
 
         private Vector3 GetCurrentWaypoint()
@@ -99,7 +100,7 @@ namespace RPG.Control
 
         private void SuspicionBehaviour()
         {
-            GetComponent<ActionScheduler>().CancelCurrentAction();
+            GetComponent<ActionScheduler>().CancelCurrentAction();//do nothing for suspicion moment
         }
 
         private void AttackBehaviour()
